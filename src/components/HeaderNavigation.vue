@@ -195,6 +195,7 @@ nav {
       justify-content: center;
       text-transform: capitalize;
       cursor: pointer;
+      font-weight: bolder;
 
       &:hover {
         background-color: Variaveis.$corDeFundoTerciaria;

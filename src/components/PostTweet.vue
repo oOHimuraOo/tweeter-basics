@@ -108,7 +108,7 @@ watch(
           <img :src="location" alt="" />
         </a>
       </div>
-      <button type="submit" @click.prevent="handleSubmit">postar</button>
+      <button type="submit" @click.prevent="handleSubmit">Tweetar</button>
     </div>
   </div>
 </template>

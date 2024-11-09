@@ -93,7 +93,7 @@ export default defineComponent({
       <input type="text" id="user" v-model="estado.user" />
       <label for="password">Senha</label>
       <input type="password" id="password" v-model="estado.senha" />
-      <button type="submit" @click.prevent="handleSubmit">Logar</button>
+      <button type="submit" @click.prevent="handleSubmit">Entrar</button>
     </form>
     <router-link to="/register">Registrar nova conta</router-link>
   </div>
@@ -150,6 +150,8 @@ form {
     border-radius: 8px;
     padding: 4px;
     margin: 12px;
+    font-size: Variaveis.$fontSizeP;
+    font-weight: bolder;
     cursor: pointer;
 
     &:hover {
