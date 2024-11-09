@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PostTweet from '../components/PostTweet.vue'
-import { computed, onMounted, reactive } from 'vue'
+import { onMounted, reactive } from 'vue'
 import { getAllTweets } from '@/utils/fetcher/axios'
 import perf from '../assets/imgs/icons/profile-circle-svgrepo-com.svg'
 
@@ -24,8 +24,9 @@ async function coletarTweets() {
     const novos_tweets = tweets.filter(
       (item: Tweet) => !estado.tweets.some(tweet => tweet.id === item.id),
     )
+    // Adiciona os novos tweets no início do array
     novos_tweets.forEach((tweet: Tweet) => {
-      estado.tweets.push(tweet)
+      estado.tweets.unshift(tweet)
     })
   } catch (error) {
     console.error('Erro ao buscar tweets', error)
@@ -72,9 +73,7 @@ function convertToFormattedArray(dateTime: string): [string, string] {
   // Remove espaços e retorna o array com a data e hora formatadas
   return [datePart.trim(), timePart.trim()]
 }
-// const tweetsRevertidos = computed(() => {
-//   return [...estado.tweets].reverse()
-// })
+
 </script>
 
 <template>
