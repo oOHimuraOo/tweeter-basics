@@ -14,9 +14,9 @@ export default defineComponent({
   name: 'HeaderNavigation',
   setup() {
     const id = localStorage.getItem('userId')
-    const userName = ref<string | null>(null)
+    const userName = ref<string | null | undefined>(null)
     const router = useRouter()
-    const perfilImg = ref<string | null>(null)
+    const perfilImg = ref<string | null | undefined>(null)
     const estado = reactive({
       nome: 'perfil',
     })

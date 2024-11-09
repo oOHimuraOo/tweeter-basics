@@ -1,11 +1,20 @@
 <script setup lang="ts">
 import PostTweet from '../components/PostTweet.vue'
 import { computed, onMounted, reactive } from 'vue'
-import TweetClass from '@/utils/models/tweets'
 import { getAllTweets } from '@/utils/fetcher/axios'
 import perf from '../assets/imgs/icons/profile-circle-svgrepo-com.svg'
 
-const estado = reactive<{ tweets: TweetClass[] }>({
+interface Tweet {
+  id: number;
+  owner: number;
+  owner_name: string;
+  image: string;
+  post: string;
+  data_postagem: string;
+  hora_postagem: string;
+}
+
+const estado = reactive<{ tweets: Tweet[] }>({
   tweets: [],
 })
 
@@ -13,9 +22,9 @@ async function coletarTweets() {
   try {
     const tweets = await getAllTweets()
     const novos_tweets = tweets.filter(
-      (item: TweetClass) => !estado.tweets.some(tweet => tweet.id === item.id),
+      (item: Tweet) => !estado.tweets.some(tweet => tweet.id === item.id),
     )
-    novos_tweets.forEach((tweet: TweetClass) => {
+    novos_tweets.forEach((tweet: Tweet) => {
       estado.tweets.push(tweet)
     })
   } catch (error) {
@@ -78,7 +87,7 @@ const tweetsRevertidos = computed(() => {
         <span>feed</span>
         <li v-for="tweet in tweetsRevertidos" :key="tweet.id">
           <div>
-            <img :src="perf || tweet.img" alt="perfil" />
+            <img :src="perf || tweet.image" alt="perfil" />
             <h3>{{ tweet.owner_name }}</h3>
           </div>
           <p>
