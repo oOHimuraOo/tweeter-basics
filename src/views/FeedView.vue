@@ -14,7 +14,8 @@ interface Tweet {
   hora_postagem: string;
 }
 
-const estado = reactive<{ tweets: Tweet[] }>({
+const estado = reactive<{ refresh_count: number, tweets: Tweet[] }>({
+  refresh_count: 0,
   tweets: [],
 })
 
@@ -24,10 +25,17 @@ async function coletarTweets() {
     const novos_tweets = tweets.filter(
       (item: Tweet) => !estado.tweets.some(tweet => tweet.id === item.id),
     )
-    // Adiciona os novos tweets no início do array
-    novos_tweets.forEach((tweet: Tweet) => {
-      estado.tweets.unshift(tweet)
-    })
+    if (estado.refresh_count === 0) {
+      novos_tweets.forEach((tweet: Tweet) => {
+        estado.tweets.push(tweet)
+        estado.refresh_count++
+      })
+    } else {
+      novos_tweets.forEach((tweet: Tweet) => {
+        estado.tweets.unshift(tweet)
+        estado.refresh_count++
+      })
+    }
   } catch (error) {
     console.error('Erro ao buscar tweets', error)
   }
@@ -73,7 +81,6 @@ function convertToFormattedArray(dateTime: string): [string, string] {
   // Remove espaços e retorna o array com a data e hora formatadas
   return [datePart.trim(), timePart.trim()]
 }
-
 </script>
 
 <template>
