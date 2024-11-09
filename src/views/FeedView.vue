@@ -72,9 +72,9 @@ function convertToFormattedArray(dateTime: string): [string, string] {
   // Remove espaços e retorna o array com a data e hora formatadas
   return [datePart.trim(), timePart.trim()]
 }
-const tweetsRevertidos = computed(() => {
-  return [...estado.tweets].reverse()
-})
+// const tweetsRevertidos = computed(() => {
+//   return [...estado.tweets].reverse()
+// })
 </script>
 
 <template>
@@ -85,7 +85,7 @@ const tweetsRevertidos = computed(() => {
     <div class="tweets_container">
       <ul>
         <span>feed</span>
-        <li v-for="tweet in tweetsRevertidos" :key="tweet.id">
+        <li v-for="tweet in estado.tweets" :key="tweet.id">
           <div>
             <img :src="perf || tweet.image" alt="perfil" />
             <h3>{{ tweet.owner_name }}</h3>
