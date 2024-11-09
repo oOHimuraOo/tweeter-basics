@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { novoTweet } from '@/utils/mocks'
 import { reactive, watch, defineEmits } from 'vue'
 import images from '@/assets/imgs/icons/image-picture-svgrepo-com.svg'
 import emoji from '@/assets/imgs/icons/emoji-smile-svgrepo-com.svg'
 import calendar from '@/assets/imgs/icons/calendar-svgrepo-com.svg'
 import location from '@/assets/imgs/icons/location-pin-svgrepo-com.svg'
+import { createTweet } from '@/utils/fetcher/axios'
 
 const emit = defineEmits<{ (event: 'tweetSubmited'): void }>()
 const estado = reactive<{
@@ -27,15 +27,23 @@ function postValido(p: string): boolean {
   return true
 }
 
-function handleSubmit() {
-  const usuario = localStorage.getItem('usuario')
-  if (usuario != null && postValido(estado.post)) {
-    novoTweet(usuario, estado.post)
-    emit('tweetSubmited')
-    estado.post = ''
-    estado.caracteres = 0
-    const textarea = document.getElementById('post') as HTMLTextAreaElement
-    textarea.value = ''
+async function handleSubmit() {
+  const idStr = localStorage.getItem('userId')
+  const id = idStr ? Number(idStr) : null
+
+  if (id !== null && postValido(estado.post)) {
+    try {
+      await createTweet({ post: estado.post, owner: id })
+      emit('tweetSubmited')
+      estado.post = ''
+      estado.caracteres = 0
+      const textarea = document.getElementById('post') as HTMLTextAreaElement
+      textarea.value = ''
+    } catch (error) {
+      console.error('Erro ao criar tweet', error)
+    }
+  } else {
+    console.error('ID inválido ou post inválido')
   }
 }
 

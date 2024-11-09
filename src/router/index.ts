@@ -30,13 +30,18 @@ const routes = [
 
 //tem que verificar no banco se o usuario está logado ou não.
 function isUserLoggedIn(): boolean {
-  const user = localStorage.getItem('usuario')
+  const user = localStorage.getItem('userName')
+  console.log(user)
 
   if (user === null) {
     return false
   }
 
-  const logado: boolean = usuarioLogado(user)
+  const logado: boolean =
+    localStorage.getItem('loggedIn') == null ||
+    localStorage.getItem('loggedIn') === 'false'
+      ? false
+      : true
   return logado
 }
 

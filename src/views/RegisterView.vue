@@ -1,6 +1,8 @@
+// src/views/RegisterView.vue
+
 <script setup lang="ts">
 import { RouterLink, useRouter } from 'vue-router'
-import { fakeUserDb, novoUsuario } from '@/utils/mocks'
+import { createUsuario } from '@/utils/fetcher/axios'
 import { reactive } from 'vue'
 
 const router = useRouter()
@@ -32,13 +34,7 @@ function validarCadastro(u: string, s: string, ss: string): boolean {
     return false
   }
 
-  if (fakeUserDb.some(user => user.name === u)) {
-    estado.error = loadErrorMsg('UIV')
-    return false
-  }
-
   estado.error = loadErrorMsg('OK')
-  novoUsuario(u, s)
   return true
 }
 
@@ -52,16 +48,25 @@ function loadErrorMsg(typeError: string): string {
       return 'A confirmação de senha precisa ser preenchida!'
     case 'SDSS':
       return 'A senha precisa ser igual a confirmação de senha!'
-    case 'UIV':
-      return 'O usuario invalido!'
     default:
       return ''
   }
 }
 
-function handleSubmit() {
+async function handleSubmit() {
   if (validarCadastro(estado.usuario, estado.senha, estado.confirma_senha)) {
-    router.push('/login')
+    try {
+      const usuarioData = {
+        nome: estado.usuario,
+        senha: estado.senha,
+      }
+      console.log('Dados do usuário a serem enviados:', usuarioData)
+      await createUsuario(usuarioData)
+      router.push('/login')
+    } catch (error) {
+      estado.error = 'Erro ao cadastrar usuário. Tente novamente.'
+      console.error('Erro ao criar usuário', error)
+    }
   }
 }
 </script>
@@ -75,19 +80,19 @@ function handleSubmit() {
           {{ estado.error }}
         </p>
         <form>
-          <label for="user">user</label>
+          <label for="user">Usuário</label>
           <input type="text" id="user" v-model="estado.usuario" />
-          <label for="password">password</label>
+          <label for="password">Senha</label>
           <input type="password" id="password" v-model="estado.senha" />
-          <label for="password-confirm">password confirmation</label>
+          <label for="password-confirm">Confirmação de senha</label>
           <input
             type="password"
             id="password-confirm"
             v-model="estado.confirma_senha"
           />
-          <button type="submit" @click.prevent="handleSubmit">cadastrar</button>
+          <button type="submit" @click.prevent="handleSubmit">Cadastrar</button>
         </form>
-        <RouterLink to="/login">ir para login</RouterLink>
+        <RouterLink to="/login">Ir para login</RouterLink>
       </div>
     </div>
   </div>

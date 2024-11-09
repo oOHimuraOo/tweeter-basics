@@ -1,6 +1,6 @@
 <script lang="ts">
 import { deslogar, usuarioLogado } from '@/utils/mocks'
-import { defineComponent } from 'vue'
+import { defineComponent, ref, onMounted, reactive } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
 import birdLogo from '@/assets/imgs/icons/bird-svgrepo-com.svg'
 import hash from '@/assets/imgs/icons/hashtag-svgrepo-com.svg'
@@ -8,21 +8,41 @@ import noti from '@/assets/imgs/icons/notifications-svgrepo-com.svg'
 import home from '@/assets/imgs/icons/home-svgrepo-com.svg'
 import msgs from '@/assets/imgs/icons/mail-alt-3-svgrepo-com.svg'
 import perf from '@/assets/imgs/icons/profile-circle-svgrepo-com.svg'
+import { getUser } from '@/utils/fetcher/axios'
 
 export default defineComponent({
   name: 'HeaderNavigation',
   setup() {
+    const id = localStorage.getItem('userId')
+    const userName = ref<string | null>(null)
     const router = useRouter()
+    const perfilImg = ref<string | null>(null)
+    const estado = reactive({
+      nome: 'perfil',
+    })
+
+    onMounted(async () => {
+      if (id) {
+        try {
+          const user = await getUser(id)
+          perfilImg.value = user.profile
+          userName.value = user.nome
+          estado.nome = userName.value || 'perfil'
+          console.log(userName.value)
+          console.log('URL do perfil:', perfilImg.value)
+        } catch (error) {
+          console.error('Erro ao buscar usuário:', error)
+        }
+      }
+    })
 
     function handleLogout() {
-      const user = localStorage.getItem('usuario')
-
-      if (user != null && usuarioLogado(user)) {
-        deslogar(user)
-        localStorage.removeItem('usuario')
-        router.push('/')
-      }
+      localStorage.removeItem('userId')
+      localStorage.removeItem('userName')
+      localStorage.removeItem('loggedIn')
+      router.push('/')
     }
+
     return {
       handleLogout,
       birdLogo,
@@ -31,6 +51,8 @@ export default defineComponent({
       home,
       msgs,
       perf,
+      perfilImg,
+      estado,
     }
   },
   components: {
@@ -74,7 +96,9 @@ export default defineComponent({
         </ul>
       </div>
       <div class="menu_logout">
-        <button><img :src="perf" alt="">perfil</button>
+        <button>
+          <img :src="perf || perfilImg" alt="perfil" />{{ estado.nome }}
+        </button>
         <button @click="handleLogout">logout</button>
       </div>
     </nav>
@@ -169,6 +193,7 @@ nav {
       display: flex;
       align-items: center;
       justify-content: center;
+      text-transform: capitalize;
       cursor: pointer;
 
       &:hover {

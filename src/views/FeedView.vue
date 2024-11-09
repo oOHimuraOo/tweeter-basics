@@ -1,20 +1,26 @@
 <script setup lang="ts">
-import { fakeTweetsDb } from '@/utils/mocks'
 import PostTweet from '../components/PostTweet.vue'
 import { computed, onMounted, reactive } from 'vue'
 import TweetClass from '@/utils/models/tweets'
+import { getAllTweets } from '@/utils/fetcher/axios'
+import perf from '../assets/imgs/icons/profile-circle-svgrepo-com.svg'
 
 const estado = reactive<{ tweets: TweetClass[] }>({
   tweets: [],
 })
 
-function coletarTweets() {
-  const novos_tweets = fakeTweetsDb.filter(
-    item => !estado.tweets.some(tweet => tweet.id === item.id),
-  )
-  novos_tweets.forEach(tweet => {
-    estado.tweets.push(tweet)
-  })
+async function coletarTweets() {
+  try {
+    const tweets = await getAllTweets()
+    const novos_tweets = tweets.filter(
+      (item: TweetClass) => !estado.tweets.some(tweet => tweet.id === item.id),
+    )
+    novos_tweets.forEach((tweet: TweetClass) => {
+      estado.tweets.push(tweet)
+    })
+  } catch (error) {
+    console.error('Erro ao buscar tweets', error)
+  }
 }
 
 function handleTweetSubmited() {
@@ -28,6 +34,35 @@ onMounted(() => {
   }, 10000)
 })
 
+function convertToBrasiliaTime(date: string, time: string): string {
+  // Cria um objeto Date a partir da data e hora fornecidas
+  const dateTimeString = `${date}T${time}Z` // Adiciona 'Z' para indicar que está em UTC
+  const serverDate = new Date(dateTimeString)
+
+  // Define as opções para formatação
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'America/Sao_Paulo', // Fuso horário de Brasília
+    hour12: false, // Formato de 24 horas
+  }
+
+  // Usa Intl.DateTimeFormat para converter e formatar a data e hora
+  const formatter = new Intl.DateTimeFormat('pt-BR', options)
+  return formatter.format(serverDate)
+}
+
+function convertToFormattedArray(dateTime: string): [string, string] {
+  // Separa a string em data e hora
+  const [datePart, timePart] = dateTime.split(', ')
+
+  // Remove espaços e retorna o array com a data e hora formatadas
+  return [datePart.trim(), timePart.trim()]
+}
 const tweetsRevertidos = computed(() => {
   return [...estado.tweets].reverse()
 })
@@ -43,13 +78,24 @@ const tweetsRevertidos = computed(() => {
         <span>feed</span>
         <li v-for="tweet in tweetsRevertidos" :key="tweet.id">
           <div>
-            <img :src="tweet.img" alt="perfil" />
-            <h3>{{ tweet.name }}</h3>
+            <img :src="perf || tweet.img" alt="perfil" />
+            <h3>{{ tweet.owner_name }}</h3>
           </div>
           <p>
             {{ tweet.post }}
           </p>
-          <p class="data_hora">data:{{ tweet.data }} hora:{{ tweet.hour }}</p>
+          <p class="data_hora">
+            data:{{
+              convertToFormattedArray(
+                convertToBrasiliaTime(tweet.data_postagem, tweet.hora_postagem),
+              )[0]
+            }}
+            hora:{{
+              convertToFormattedArray(
+                convertToBrasiliaTime(tweet.data_postagem, tweet.hora_postagem),
+              )[1]
+            }}
+          </p>
         </li>
       </ul>
     </div>
