@@ -25,7 +25,7 @@ export const getUser = async (id: string | number | null) => {
   if (id == null) {
     return
   }
-  
+
   try {
     const response = await api.get(`usuarios/${id}/`)
     return response.data

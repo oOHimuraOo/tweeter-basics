@@ -1,19 +1,25 @@
 <script setup lang="ts">
-import LoginComponent from '@/components/LoginComponent.vue'
-import { onMounted, reactive } from 'vue'
-import logo from '@/assets/imgs/icons/bird-svgrepo-com.svg'
+import LoginComponent from '@/components/LoginComponent.vue';
+import { onMounted, reactive } from 'vue';
+import logo from '@/assets/imgs/icons/bird-svgrepo-com.svg';
+import { getAllUsers } from '@/utils/fetcher/axios';
 
 const estado = reactive({
   users: 0,
-})
+});
 
-function calcularUsuariosConectados() {
-  estado.users = Math.floor(Math.random() * 100000)
+async function calcularUsuariosConectados() {
+  try {
+    const users = await getAllUsers();
+    estado.users = users.length;
+  } catch (error) {
+    console.error('Erro ao calcular usuários conectados', error);
+  }
 }
 
 onMounted(() => {
-  calcularUsuariosConectados()
-})
+  calcularUsuariosConectados();
+});
 </script>
 
 <template>
@@ -23,7 +29,7 @@ onMounted(() => {
         <img :src="logo" alt="logo-grande" />
         <h1>Tweeter clone</h1>
         <h2>Faça parte da comunidade!</h2>
-        <span> Contamos com mais de {{ estado.users }} usuarios logados! </span>
+        <span> Contamos com mais de {{ estado.users }} usuários logados! </span>
       </div>
       <div class="login">
         <LoginComponent />
